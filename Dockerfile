@@ -8,8 +8,8 @@ RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
 RUN apt-get -y update
 RUN apt-get -yy upgrade
 ENV BUILD_DEPS="git autoconf pkg-config libssl-dev libpam0g-dev \
-    libx11-dev libxfixes-dev libxrandr-dev nasm xsltproc flex \
-    bison libxml2-dev dpkg-dev libcap-dev"
+  libx11-dev libxfixes-dev libxrandr-dev nasm xsltproc flex \
+  bison libxml2-dev dpkg-dev libcap-dev"
 RUN apt-get -yy install  sudo apt-utils software-properties-common $BUILD_DEPS
 
 
@@ -82,6 +82,25 @@ ADD bin /usr/bin
 ADD etc /etc
 ADD autostart /etc/xdg/autostart
 #ADD pulse /usr/lib/pulse-10.0/modules/
+
+# Add Wine
+# For Ubuntu 20
+# RUN dpkg --add-architecture i386
+# RUN wget -qO- https://dl.winehq.org/wine-builds/Release.key | sudo apt-key add -
+# RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv F987672F
+# RUN apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main'  && apt-get update -y
+# RUN apt-get install -y --install-recommends winehq-stable
+# For Ubuntu 18.4
+RUN dpkg --add-architecture i386
+RUN apt update -y
+RUN wget -qO- https://dl.winehq.org/wine-builds/winehq.key | sudo apt-key add -
+RUN apt install -y software-properties-common
+RUN apt-add-repository 'deb http://dl.winehq.org/wine-builds/ubuntu/ bionic main'
+RUN wget -qO- https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key | sudo apt-key add -
+RUN sh -c 'echo "deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./" > /etc/apt/sources.list.d/obs.list'
+RUN apt update -y
+RUN apt-get install -y --install-recommends winehq-stable
+
 
 # Configure
 RUN mkdir /var/run/dbus && \
